@@ -324,6 +324,9 @@ cran %>%
 26. Añade una columna llamada `size_mb` que contenga el tamaño de cada descarga en megabytes.
 
 ```{r}
+cran %>%
+  select(ip_id, country, package, size) %>% 
+  mutate(size_mb = size / (2^20)) 
 
 
 
@@ -332,12 +335,20 @@ cran %>%
 27. Selecciona aquellas descargas cuyo tamaño es menor o igual que 0.5 Mbytes
 ```{r}
 
-
+cran %>%
+  select(ip_id, country, package, size) %>%  
+  mutate(size_mb = size / (2^20)) %>% 
+  filter(size_mb <= 0.5) 
+  
 
 ```
 28. Repite el apartado anterior ordenando los resultados, en orden descendente según el tamaño en Megabytes y muéstralo por pantalla.
 ```{r}
-
+cran %>%
+  select(ip_id, country, package, size) %>%  
+  mutate(size_mb = size / (2^20)) %>% 
+  filter(size_mb <= 0.5) %>%
+  arrange(desc(size_mb)) 
 
 
 
@@ -346,6 +357,18 @@ cran %>%
 `cran%>%...+geom_point()`
 
 ```{r}
+library(ggplot2)
+
+cran %>%
+  group_by(country) %>%  
+  summarise(total_traffic = sum(size)) %>%  
+  arrange(desc(total_traffic)) %>%  
+  mutate(cum_traffic = cumsum(total_traffic) / sum(total_traffic)) %>%  
+  filter(cum_traffic <= 0.9) %>%  
+  ggplot(aes(x = country, y = total_traffic)) +  
+  geom_point() +
+  
+  labs(x = "Country", y = "Trafico Generado (Bytes)", title = "Pises con el 90% Download Traffic")  
 
 
 
@@ -390,7 +413,13 @@ Carga el fichero de datos `datostidyr.Rdata` que contiene varios conjuntos de da
 La columna `grade` es la calificación y las dos siguientes el número de estudiantes hombre y mujer que han recibido dicha calificación.
 ¿ Cuáles son las variables ?. Transfórmalo en un conjunto `tidy` con las variables, `grade, sex y count`
 ```{r}
-
+load("./data/datostidyr.Rdata")  
+head(students)
+library(tidyr)
+ students %>%
+  pivot_longer(cols = c(male, female), 
+               names_to = "sex", 
+               values_to = "count")
 
 
 ```
